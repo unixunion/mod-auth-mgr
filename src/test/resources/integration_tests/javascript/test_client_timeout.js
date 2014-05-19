@@ -78,10 +78,12 @@ function deleteAll(doneHandler) {
 var script = this;
 var persistorConfig =
 {
-  address: 'test.persistor',
-  db_name: java.lang.System.getProperty("vertx.mongo.database", "test_db"),
-  host: java.lang.System.getProperty("vertx.mongo.host", "localhost"),
-  port: java.lang.Integer.valueOf(java.lang.System.getProperty("vertx.mongo.port", "27017"))
+  "async_mode": false, // tells the Boot class to start async or sync mode
+  "address": "test.persistor", // the eventbus address this module listens on
+  "couchbase.nodelist": "localhost:8091", // comma separated list of couchbase nodes
+  "couchbase.bucket": "ivault", // the bucket to connect to
+  "couchbase.bucket.password": "", // password if any for the bucket
+  "couchbase.num.clients": 1 // number of clients to open towards the couch instances
 }
 var username = java.lang.System.getProperty("vertx.mongo.username");
 var password = java.lang.System.getProperty("vertx.mongo.password");
@@ -93,7 +95,7 @@ if (username != null) {
 
 var authMgrConfig = {address: 'test.authMgr', 'persistor_address' : 'test.persistor', 'user_collection': 'users',
                      session_timeout: 200}
-container.deployModule('io.vertx~mod-mongo-persistor~2.0.0-final', persistorConfig, function(err, depID) {
+container.deployModule('com.scalabl3~vertxmods.couchbase~1.0.0-final', persistorConfig, function(err, depID) {
   if (err != null) {
     err.printStackTrace();
   }

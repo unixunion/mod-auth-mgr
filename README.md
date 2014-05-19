@@ -1,6 +1,6 @@
 # Authentication/Authorisation Manager
 
-This is a basic auth manager that verifies usernames and passwords in a MongoDB database and generates time-limited session ids. These session ids can be passed around the event bus.
+This is a basic auth manager that verifies usernames and passwords in a CouchDB database and generates time-limited session ids. These session ids can be passed around the event bus.
 
 The auth manager can also authorise a session id. This allows session ids to be passed around the event bus and validated if particular busmods want to find out if the user is authorised.
 
@@ -10,7 +10,16 @@ This busmod, is used in the web application tutorial to handle simple user/passw
 
 ## Dependencies
 
-This busmod requires a MongoDB persistor busmod to be running to allow searching for usernames and passwords.
+This busmod requires a CouchDB persistor busmod to be running to allow searching for usernames and passwords.
+You will also need a couch bucket and view to return the data. eg:
+
+```javascript
+
+function (doc, meta) {
+  emit(doc.username, [doc.password]);
+}
+
+```
 
 ## Name
 
@@ -22,7 +31,7 @@ This busmod takes the following configuration:
 
     {
         "address": <address>,
-        "user_collection": <user_collection>,
+        "user_view": <user_view>,
         "persistor_address": <persistor_address>,
         "session_timeout": <session_timeout>   
     }
@@ -31,16 +40,16 @@ For example:
 
     {
         "address": "test.my_authmgr",
-        "user_collection": "users",
-        "persistor_address": "test.my_persistor",
+        "user_view": "users",
+        "persistor_address": "test.my_couch",
         "session_timeout": 900000
     }        
     
 Let's take a look at each field in turn:
 
 * `address` The main address for the busmod. Optional field. Default value is `vertx.basicauthmanager`
-* `user_collection` The MongoDB collection in which to search for usernames and passwords. Optional field. Default value is `users`.
-* `persistor_address` Address of the persistor busmod to use for usernames and passwords. This field is optional. Default value is `vertx.mongopersistor`.
+* `user_view` The CouchDB view in which to search for usernames and passwords. Optional field. Default value is `users`.
+* `persistor_address` Address of the persistor busmod to use for usernames and passwords. This field is optional. Default value is `vertx.couchpersistor`.
 * `session_timeout` Timeout of a session, in milliseconds. This field is optional. Default value is `1800000` (30 minutes).
 
 ## Operations
@@ -129,3 +138,8 @@ Otherwise, if the session is not valid. I.e. it has expired or never existed in 
     }
 
 With this basic auth manager, the user is always authorised if they are logged in, i.e. there is no fine grained authorisation of resources.
+
+*** Testing
+
+./gradlew test -Dtest.single=TestAuth
+

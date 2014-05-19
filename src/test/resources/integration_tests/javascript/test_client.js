@@ -19,12 +19,17 @@ var vertx = require("vertx");
 var vertxTests = require("vertx_tests");
 var vassert = require("vertx_assert");
 var console = require("vertx/console");
+var logger = container.logger;
+logger.info("FSUDSDASDSAD");
 
 var eb = vertx.eventBus;
 
 function testLoginDeniedEmptyDB() {
   deleteAll(function() {
     eb.send('test.authMgr.login', {username: 'tim', password: 'foo'}, function(reply) {
+      logger.info("got reply: " + reply.status);
+      logger.info("DSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDS");
+      console.log("DSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDS");
       vassert.assertEquals('denied', reply.status);
       vassert.testComplete();
     });
@@ -36,6 +41,7 @@ function testLoginDeniedNonMatchingOthers() {
     storeEntries({username: 'bob', password: 'wibble'},
       {username: 'jane', password: 'uhuwdh'}, function() {
         eb.send('test.authMgr.login', {username: 'tim', password: 'foo'}, function(reply) {
+          console.log(reply)
           vassert.assertEquals('denied', reply.status);
           vassert.testComplete();
         });
@@ -249,10 +255,12 @@ function deleteAll(doneHandler) {
 var script = this;
 var persistorConfig =
 {
-  address: 'test.persistor',
-  db_name: java.lang.System.getProperty("vertx.mongo.database", "test_db"),
-  host: java.lang.System.getProperty("vertx.mongo.host", "localhost"),
-  port: java.lang.Integer.valueOf(java.lang.System.getProperty("vertx.mongo.port", "27017"))
+  "async_mode": false, // tells the Boot class to start async or sync mode
+  "address": "test.persistor", // the eventbus address this module listens on
+  "couchbase.nodelist": "localhost:8091", // comma separated list of couchbase nodes
+  "couchbase.bucket": "ivault", // the bucket to connect to
+  "couchbase.bucket.password": "", // password if any for the bucket
+  "couchbase.num.clients": 1 // number of clients to open towards the couch instances
 }
 var username = java.lang.System.getProperty("vertx.mongo.username");
 var password = java.lang.System.getProperty("vertx.mongo.password");
@@ -261,7 +269,7 @@ if (username != null) {
   persistorConfig.password = password;
 }
 var authMgrConfig = {address: 'test.authMgr', 'persistor_address' : 'test.persistor', 'user_collection': 'users'}
-container.deployModule('io.vertx~mod-mongo-persistor~2.0.0-final', persistorConfig, 1, function(err, depID) {
+container.deployModule('com.scalabl3~vertxmods.couchbase~1.0.0-final', persistorConfig, 1, function(err, depID) {
   container.deployModule(java.lang.System.getProperty("vertx.modulename"), authMgrConfig, 1, function(err, depID) {
     vertxTests.startTests(script);
   });

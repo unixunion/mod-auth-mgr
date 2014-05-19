@@ -1,0 +1,7 @@
+{
+    "address": "vertx.basicauthmanager",
+    "user_view": "users",
+    "design_doc": "users",
+    "persistor_address": "vertx.couchpersistor",
+    "session_timeout": 1800000
+}

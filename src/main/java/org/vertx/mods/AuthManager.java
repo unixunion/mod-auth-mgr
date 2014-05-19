@@ -43,7 +43,8 @@ public class AuthManager extends BusModBase {
   private static final long DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000;
 
   private String address;
-  private String userCollection;
+  private String userView;
+  private String designDoc;
   private String persistorAddress;
   private long sessionTimeout;
 
@@ -64,9 +65,11 @@ public class AuthManager extends BusModBase {
     super.start();
 
     this.address = getOptionalStringConfig("address", "vertx.basicauthmanager");
-    this.userCollection = getOptionalStringConfig("user_collection", "users");
-    this.persistorAddress = getOptionalStringConfig("persistor_address", "vertx.mongopersistor");
+    this.userView = getOptionalStringConfig("user_view", "users");
+    this.designDoc = getOptionalStringConfig("design_doc", "users");
+    this.persistorAddress = getOptionalStringConfig("persistor_address", "vertx.couchpersistor");
     Number timeout = config.getNumber("session_timeout");
+
     if (timeout != null) {
       if (timeout instanceof Long) {
         this.sessionTimeout = (Long)timeout;
@@ -83,21 +86,28 @@ public class AuthManager extends BusModBase {
       }
     };
     eb.registerHandler(address + ".login", loginHandler);
+    container.logger().info("loginHandler listening on: " + address + ".login");
+
     logoutHandler = new Handler<Message<JsonObject>>() {
       public void handle(Message<JsonObject> message) {
         doLogout(message);
       }
     };
     eb.registerHandler(address + ".logout", logoutHandler);
+    container.logger().info("logoutHandler listening on: " + address + ".logout");
+
     authoriseHandler = new Handler<Message<JsonObject>>() {
       public void handle(Message<JsonObject> message) {
         doAuthorise(message);
       }
     };
     eb.registerHandler(address + ".authorise", authoriseHandler);
+    container.logger().info("authorizeHandler listening on: " + address + ".authorise");
   }
 
   private void doLogin(final Message<JsonObject> message) {
+
+    container.logger().info("got message: " + message.body().toString());
 
     final String username = getMandatoryString("username", message);
     if (username == null) {
@@ -108,15 +118,25 @@ public class AuthManager extends BusModBase {
       return;
     }
 
-    JsonObject findMsg = new JsonObject().putString("action", "findone").putString("collection", userCollection);
-    JsonObject matcher = new JsonObject().putString("username", username).putString("password", password);
-    findMsg.putObject("matcher", matcher);
+    JsonObject request = new JsonObject().putString("op", "QUERY")
+          .putString("design_doc", designDoc)
+          .putString("view_name", userView)
+          .putString("key", "[\"" + username + "\",\"" + password + "\"]")
+          .putBoolean("include_docs", true)
+          .putBoolean("ack", true);
 
-    eb.send(persistorAddress, findMsg, new Handler<Message<JsonObject>>() {
+
+    eb.send(persistorAddress, request, new Handler<Message<JsonObject>>() {
       public void handle(Message<JsonObject> reply) {
+        container.logger().info(reply.body().toString());
+        logger.error(reply.body().toString());
 
-        if (reply.body().getString("status").equals("ok")) {
-          if (reply.body().getObject("result") != null) {
+
+        JsonObject response = reply.body().getObject("response").getObject("response");
+        container.logger().info("response: " + response.toString());
+
+        if (response.getBoolean("success").equals(true)) {
+          if (response.getArray("result") != null) {
 
             // Check if already logged in, if so logout of the old session
             LoginInfo info = logins.get(username);
