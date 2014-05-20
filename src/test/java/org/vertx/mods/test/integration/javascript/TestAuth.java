@@ -1,6 +1,8 @@
 package org.vertx.mods.test.integration.javascript;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.Handler;
@@ -14,6 +16,7 @@ import static org.vertx.testtools.VertxAssert.*;
 /**
  * Created by keghol on 5/19/14.
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestAuth extends TestVerticle {
 
     EventBus eb;
@@ -38,6 +41,8 @@ public class TestAuth extends TestVerticle {
         System.out.println("\n\n\nDeploy Worker Verticle Couchbase Sync\n\n");
 
 
+//        JsonObject couchConfig = container.config();
+
         JsonObject couchConfig = new JsonObject()
                 .putBoolean("async_mode", false)
                 .putString("address", "vertx.couchpersistor" )
@@ -47,7 +52,7 @@ public class TestAuth extends TestVerticle {
                 .putNumber("couchbase.num.clients", 1);
 
 
-        container.deployModule("com.scalabl3~vertxmods.couchbase~1.0.0-final", couchConfig, 1, new AsyncResultHandler<String>() {
+        container.deployModule("com.scalabl3~vertxmods.couchbase~1.0.1-final", couchConfig, 1, new AsyncResultHandler<String>() {
             @Override
             public void handle(AsyncResult<String> stringAsyncResult) {
 
@@ -84,7 +89,7 @@ public class TestAuth extends TestVerticle {
 
 
     @Test
-    public void test1() {
+    public void test_login() {
         JsonObject request = new JsonObject()
                 .putString("username", "user0")
                 .putString("password", "somepassword");
@@ -93,11 +98,155 @@ public class TestAuth extends TestVerticle {
             @Override
             public void handle(final Message<JsonObject> reply) {
                 System.out.println(reply.body().toString());
+                assertEquals("ok", reply.body().getString("status"));
+                assertNotNull(reply.body().getString("sessionID"));
                 testComplete();
             }
         });
 
     }
+
+    @Test
+    public void test_logout() {
+        /*
+        login, then logout with the session ID
+         */
+        JsonObject request = new JsonObject()
+                .putString("username", "user0")
+                .putString("password", "somepassword");
+
+        vertx.eventBus().send(address + ".login", request, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(final Message<JsonObject> reply) {
+                System.out.println(reply.body().toString());
+                assertEquals("ok", reply.body().getString("status"));
+                assertNotNull(reply.body().getString("sessionID"));
+
+                JsonObject logout_request = new JsonObject()
+                        .putString("sessionID", reply.body().getString("sessionID"));
+
+                vertx.eventBus().send(address + ".logout", logout_request, new Handler<Message<JsonObject>>() {
+                    @Override
+                    public void handle(final Message<JsonObject> reply) {
+                        System.out.println(reply.body().toString());
+                        assertEquals("ok", reply.body().getString("status"));
+                        testComplete();
+                    }
+                });
+
+
+            }
+        });
+    }
+
+
+    @Test
+    public void test_login_error_nousername() {
+        /*
+        login with bad data
+         */
+        JsonObject login_request = new JsonObject()
+                .putString("notusername", "dsdsa");
+
+        vertx.eventBus().send(address + ".login", login_request, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(final Message<JsonObject> reply) {
+                System.out.println(reply.body().toString());
+                assertEquals("error", reply.body().getString("status"));
+                testComplete();
+            }
+        });
+    }
+
+    @Test
+    public void test_login_error_nopassword() {
+        /*
+        login with bad data
+         */
+        JsonObject login_request = new JsonObject()
+                .putString("username", "dsdsa");
+
+        vertx.eventBus().send(address + ".login", login_request, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(final Message<JsonObject> reply) {
+                System.out.println(reply.body().toString());
+                assertEquals("error", reply.body().getString("status"));
+                testComplete();
+            }
+        });
+    }
+
+
+
+    @Test
+    public void test_logout_not_logged_in() {
+        /*
+        login, then logout with the session ID
+         */
+        JsonObject logout_request = new JsonObject()
+                .putString("sessionID", "08922120-7acf-4313-b5bd-e1444720eb3d");
+
+        vertx.eventBus().send(address + ".logout", logout_request, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(final Message<JsonObject> reply) {
+                System.out.println(reply.body().toString());
+                assertEquals("error", reply.body().getString("status"));
+                testComplete();
+            }
+        });
+    }
+
+
+    @Test
+    public void test_failed_login() {
+        JsonObject request = new JsonObject()
+                .putString("username", "user0")
+                .putString("password", "dsadas");
+
+        vertx.eventBus().send(address + ".login", request, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(final Message<JsonObject> reply) {
+                assertEquals("denied", reply.body().getString("status"));
+                testComplete();
+            }
+        });
+
+    }
+
+
+    @Test
+    public void test_authorize() {
+        /*
+        login, then authorize with the session ID
+         */
+        JsonObject request = new JsonObject()
+                .putString("username", "user0")
+                .putString("password", "somepassword");
+
+        vertx.eventBus().send(address + ".login", request, new Handler<Message<JsonObject>>() {
+            @Override
+            public void handle(final Message<JsonObject> reply) {
+                System.out.println(reply.body().toString());
+                assertEquals("ok", reply.body().getString("status"));
+                assertNotNull(reply.body().getString("sessionID"));
+
+                JsonObject authorize_request = new JsonObject()
+                        .putString("sessionID", reply.body().getString("sessionID"));
+
+                vertx.eventBus().send(address + ".authorise", authorize_request, new Handler<Message<JsonObject>>() {
+                    @Override
+                    public void handle(final Message<JsonObject> reply) {
+                        System.out.println(reply.body().toString());
+                        assertEquals("ok", reply.body().getString("status"));
+                        testComplete();
+                    }
+                });
+
+
+            }
+        });
+    }
+
 
 
 }

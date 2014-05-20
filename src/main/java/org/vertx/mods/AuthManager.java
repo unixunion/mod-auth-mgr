@@ -107,7 +107,7 @@ public class AuthManager extends BusModBase {
 
   private void doLogin(final Message<JsonObject> message) {
 
-    container.logger().info("got message: " + message.body().toString());
+    container.logger().debug("got message: " + message.body().toString());
 
     final String username = getMandatoryString("username", message);
     if (username == null) {
@@ -128,15 +128,14 @@ public class AuthManager extends BusModBase {
 
     eb.send(persistorAddress, request, new Handler<Message<JsonObject>>() {
       public void handle(Message<JsonObject> reply) {
-        container.logger().info(reply.body().toString());
-        logger.error(reply.body().toString());
-
-
+        container.logger().debug(reply.body().toString());
         JsonObject response = reply.body().getObject("response").getObject("response");
-        container.logger().info("response: " + response.toString());
+        container.logger().debug("response from persistor: " + response);
+        container.logger().debug("response result: " + response.getArray("result").size());
 
         if (response.getBoolean("success").equals(true)) {
-          if (response.getArray("result") != null) {
+          // if nothing in the results from couch
+          if (response.getArray("result").size() != 0) {
 
             // Check if already logged in, if so logout of the old session
             LoginInfo info = logins.get(username);

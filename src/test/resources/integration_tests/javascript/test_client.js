@@ -20,16 +20,12 @@ var vertxTests = require("vertx_tests");
 var vassert = require("vertx_assert");
 var console = require("vertx/console");
 var logger = container.logger;
-logger.info("FSUDSDASDSAD");
 
 var eb = vertx.eventBus;
 
 function testLoginDeniedEmptyDB() {
   deleteAll(function() {
     eb.send('test.authMgr.login', {username: 'tim', password: 'foo'}, function(reply) {
-      logger.info("got reply: " + reply.status);
-      logger.info("DSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDS");
-      console.log("DSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDSDS");
       vassert.assertEquals('denied', reply.status);
       vassert.testComplete();
     });

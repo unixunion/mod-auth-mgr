@@ -1,22 +1,23 @@
 # Authentication/Authorisation Manager
 
+based on mod-auth-mgr by Tim Fox
+
 This is a basic auth manager that verifies usernames and passwords in a CouchDB database and generates time-limited session ids. These session ids can be passed around the event bus.
 
 The auth manager can also authorise a session id. This allows session ids to be passed around the event bus and validated if particular busmods want to find out if the user is authorised.
 
 Sessions time out after a certain amount of time. After that time, they will not verify as ok.
 
-This busmod, is used in the web application tutorial to handle simple user/password authorisation for the application.
-
 ## Dependencies
 
-This busmod requires a CouchDB persistor busmod to be running to allow searching for usernames and passwords.
+This busmod requires a vertx-couchbase from: https://github.com/unixunion/vertx-couchbase.git
+
 You will also need a couch bucket and view to return the data. eg:
 
 ```javascript
 
 function (doc, meta) {
-  emit(doc.username, [doc.password]);
+  emit([doc.username, doc.password], [doc.username]);
 }
 
 ```
@@ -140,6 +141,16 @@ Otherwise, if the session is not valid. I.e. it has expired or never existed in 
 With this basic auth manager, the user is always authorised if they are logged in, i.e. there is no fine grained authorisation of resources.
 
 *** Testing
+
+The view in couch:
+
+```js
+function (doc, meta) {
+  emit([doc.username, doc.password], [doc.username]);
+}
+```
+
+The following will deploy couchmod with the correct config and test away.
 
 ./gradlew test -Dtest.single=TestAuth
 
