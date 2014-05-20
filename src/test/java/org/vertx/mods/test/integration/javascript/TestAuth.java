@@ -38,21 +38,21 @@ public class TestAuth extends TestVerticle {
         this.designDoc = container.config().getString("design_doc", "users");
         this.persistorAddress = container.config().getString("persistor_address", "vertx.couchpersistor");
 
-        System.out.println("\n\n\nDeploy Worker Verticle Couchbase Sync\n\n");
+        System.out.println("\n\n\nDeploy Mod Couchbase\n\n");
 
 
 //        JsonObject couchConfig = container.config();
 
         JsonObject couchConfig = new JsonObject()
-                .putBoolean("async_mode", false)
+                .putBoolean("async_mode", true)
                 .putString("address", "vertx.couchpersistor" )
-                .putString("couchbase.nodelust", "localhost:8091")
+                .putString("couchbase.nodelist", "localhost:8091")
                 .putString("couchbase.bucket", "ivault")
                 .putString("couchbase.bucket.password", "")
                 .putNumber("couchbase.num.clients", 1);
 
 
-        container.deployModule("com.scalabl3~vertxmods.couchbase~1.0.1-final", couchConfig, 1, new AsyncResultHandler<String>() {
+        container.deployModule("com.deblox~mod-couchbase~0.0.1-SNAPSHOT", couchConfig, 1, new AsyncResultHandler<String>() {
             @Override
             public void handle(AsyncResult<String> stringAsyncResult) {
 
@@ -90,6 +90,7 @@ public class TestAuth extends TestVerticle {
 
     @Test
     public void test_login() {
+        container.logger().info("testing login");
         JsonObject request = new JsonObject()
                 .putString("username", "user0")
                 .putString("password", "somepassword");

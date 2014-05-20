@@ -17,11 +17,6 @@ package org.vertx.mods.test.integration.javascript;
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.vertx.testtools.ScriptClassRunner;
-import org.vertx.testtools.TestVerticleInfo;
-
 /**
  * This is dummy JUnit test class which is used to run any JavaScript test scripts as JUnit tests.
  *
@@ -31,10 +26,10 @@ import org.vertx.testtools.TestVerticleInfo;
  *
  * Do need to edit this file unless you want it to look for tests elsewhere
  */
-@TestVerticleInfo(filenameFilter=".+\\.js", funcRegex="function[\\s]+(test[^\\s(]+)")
-@RunWith(ScriptClassRunner.class)
+//@TestVerticleInfo(filenameFilter=".+\\.js", funcRegex="function[\\s]+(test[^\\s(]+)")
+//@RunWith(ScriptClassRunner.class)
 public class JavaScriptIntegrationTests {
-  @Test
+//  @Test
   public void __vertxDummy() {
   }
 }

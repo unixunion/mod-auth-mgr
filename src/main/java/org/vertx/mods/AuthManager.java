@@ -68,6 +68,7 @@ public class AuthManager extends BusModBase {
     this.userView = getOptionalStringConfig("user_view", "users");
     this.designDoc = getOptionalStringConfig("design_doc", "users");
     this.persistorAddress = getOptionalStringConfig("persistor_address", "vertx.couchpersistor");
+    container.logger().info("persistor_address: " + persistorAddress);
     Number timeout = config.getNumber("session_timeout");
 
     if (timeout != null) {
@@ -128,14 +129,15 @@ public class AuthManager extends BusModBase {
 
     eb.send(persistorAddress, request, new Handler<Message<JsonObject>>() {
       public void handle(Message<JsonObject> reply) {
-        container.logger().debug(reply.body().toString());
-        JsonObject response = reply.body().getObject("response").getObject("response");
-        container.logger().debug("response from persistor: " + response);
-        container.logger().debug("response result: " + response.getArray("result").size());
+//        container.logger().debug(reply.body().toString());
+        JsonObject response = reply.body().getObject("response");
+//        container.logger().debug("response from persistor: " + response);
+//        container.logger().debug("response result: " + response.getArray("result").size());
+//        System.out.println("response: " + reply.body().toString());
 
         if (response.getBoolean("success").equals(true)) {
           // if nothing in the results from couch
-          if (response.getArray("result").size() != 0) {
+          if (response.getObject("response").getArray("result").size() != 0) {
 
             // Check if already logged in, if so logout of the old session
             LoginInfo info = logins.get(username);

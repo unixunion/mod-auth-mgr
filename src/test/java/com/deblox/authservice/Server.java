@@ -24,7 +24,7 @@ public class Server extends Verticle {
 //        container.deployVerticle("HttpVerticle.java", 16);
 
         System.out.println("Deploying mod-couchbase");
-        container.deployModule("com.deblox~mod-couchbase~0.0.1", couchConfig, 1, new AsyncResultHandler<String>() {
+        container.deployModule("com.deblox~mod-couchbase~0.0.1-SNAPSHOT", couchConfig, 1, new AsyncResultHandler<String>() {
             @Override
             public void handle(AsyncResult<String> stringAsyncResult) {
 
@@ -41,7 +41,7 @@ public class Server extends Verticle {
 
                         if (asyncResult.succeeded()) {
                             System.out.println("Deploying HttpVerticle");
-                            container.deployVerticle("HttpVerticle.java", 2);
+                            container.deployVerticle("HttpVerticle.java", 1);
                         }
 
 

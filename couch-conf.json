@@ -1,7 +1,7 @@
 // Example couchbase mod configuration
 
 {
-  "async_mode": false, // tells the Boot class to start async or sync mode
+  "async_mode": true, // tells the Boot class to start async or sync mode
   "address": "vertx.couchpersistor", // the eventbus address this module listens on
   "couchbase.nodelist": "localhost:8091", // comma separated list of couchbase nodes
   "couchbase.bucket": "ivault", // the bucket to connect to

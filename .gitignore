@@ -20,3 +20,4 @@ test-results
 test-tmp
 *.class
 /mods
+/src/test/java/com/deblox/authservice/mods
