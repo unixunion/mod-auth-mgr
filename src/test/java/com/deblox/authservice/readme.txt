@@ -1,3 +1,3 @@
-    vertx run Server.java -cluster
+    vertx run Server.java -cp ../../../../../../  -cluster  
     vertx run RateCounter.java -cluster -cluster-port 8902
-    run Client.java -cluster -cluster-port 8005 -instances 8
+    vertx run Client.java -cluster -cluster-port 8005 -instances 8
