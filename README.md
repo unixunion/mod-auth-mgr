@@ -1,6 +1,6 @@
 # Authentication/Authorisation Manager
 
-based on mod-auth-mgr by Tim Fox
+based on mod-auth-mgr by Tim Fox, modified for a couchbase backend via com.deblox~mod-couchbase
 
 This is a basic auth manager that verifies usernames and passwords in a CouchDB database and generates time-limited session ids. These session ids can be passed around the event bus.
 
@@ -10,7 +10,7 @@ Sessions time out after a certain amount of time. After that time, they will not
 
 ## Dependencies
 
-This busmod requires a vertx-couchbase from: https://github.com/unixunion/vertx-couchbase.git
+This busmod requires a mod-couchbase from: https://github.com/unixunion/vertx-couchbase.git
 
 You will also need a couch bucket and view to return the data. eg:
 
