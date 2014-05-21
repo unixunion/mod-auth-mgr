@@ -44,7 +44,7 @@ public class Client extends Verticle implements Handler<HttpClientResponse> {
 
   public void handle(HttpClientResponse response) {
     if (response.statusCode() != 200) {
-      throw new IllegalStateException("Invalid response");
+      throw new IllegalStateException("Invalid response, status: " + response.statusCode());
     }
     response.endHandler(new Handler() {
 

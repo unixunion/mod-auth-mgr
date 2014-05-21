@@ -24,12 +24,12 @@ public class Server extends Verticle {
 //        container.deployVerticle("HttpVerticle.java", 16);
 
         System.out.println("Deploying mod-couchbase");
-        container.deployModule("com.deblox~mod-couchbase~0.0.1-SNAPSHOT", couchConfig, 1, new AsyncResultHandler<String>() {
+        container.deployModule("com.deblox~mod-couchbase~0.0.2-SNAPSHOT", couchConfig, 1, new AsyncResultHandler<String>() {
             @Override
             public void handle(AsyncResult<String> stringAsyncResult) {
 
                 System.out.println("Deploying mod-auth-mgr-couch");
-                container.deployModule("com.deblox~mod-auth-mgr-couch~0.0.1", authConfig, 1, new AsyncResultHandler<String>() {
+                container.deployModule("com.deblox~mod-auth-mgr-couch~0.0.2-SNAPSHOT", authConfig, 1, new AsyncResultHandler<String>() {
 
                     @Override
                     public void handle(AsyncResult<String> asyncResult) {

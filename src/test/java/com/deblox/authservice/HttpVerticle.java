@@ -146,7 +146,7 @@ public class HttpVerticle extends Verticle {
         });
 
         System.out.println("Starting to Listen");
-        HttpServer server = vertx.createHttpServer().requestHandler(routeMatcher).setAcceptBacklog(5000).listen(SERVER_PORT);
+        HttpServer server = vertx.createHttpServer().requestHandler(routeMatcher).setAcceptBacklog(50).listen(SERVER_PORT);
 
 
     }

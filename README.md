@@ -12,12 +12,14 @@ Sessions time out after a certain amount of time. After that time, they will not
 
 This busmod requires a mod-couchbase from: https://github.com/unixunion/vertx-couchbase.git
 
-You will also need a couch bucket and view to return the data. eg:
+You will also need a couch bucket for your users.
 
-```javascript
+Example User document
+```json
 
-function (doc, meta) {
-  emit([doc.username, doc.password], [doc.username]);
+{
+  "username": "user0",
+  "password": "somepassword"
 }
 
 ```
@@ -142,15 +144,8 @@ With this basic auth manager, the user is always authorised if they are logged i
 
 *** Testing
 
-The view in couch:
 
-```js
-function (doc, meta) {
-  emit([doc.username, doc.password], [doc.username]);
-}
-```
 
-The following will deploy couchmod with the correct config and test away.
 
-./gradlew test -Dtest.single=TestAuth
-
+*** Generating Test Accounts
+see: ./gradlew test -Dtest.single=GenerateTestAccounts

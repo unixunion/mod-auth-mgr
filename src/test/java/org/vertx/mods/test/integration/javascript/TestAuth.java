@@ -22,8 +22,6 @@ public class TestAuth extends TestVerticle {
     EventBus eb;
     JsonObject config;
     String address;
-    String userView;
-    String designDoc;
     String persistorAddress;
 
     @Override
@@ -34,25 +32,20 @@ public class TestAuth extends TestVerticle {
         config = new JsonObject();
 
         this.address = container.config().getString("address", "vertx.basicauthmanager");
-        this.userView = container.config().getString("user_view", "users");
-        this.designDoc = container.config().getString("design_doc", "users");
         this.persistorAddress = container.config().getString("persistor_address", "vertx.couchpersistor");
 
         System.out.println("\n\n\nDeploy Mod Couchbase\n\n");
-
-
-//        JsonObject couchConfig = container.config();
 
         JsonObject couchConfig = new JsonObject()
                 .putBoolean("async_mode", true)
                 .putString("address", "vertx.couchpersistor" )
                 .putString("couchbase.nodelist", "localhost:8091")
-                .putString("couchbase.bucket", "ivault")
+                .putString("couchbase.bucket", "default")
                 .putString("couchbase.bucket.password", "")
                 .putNumber("couchbase.num.clients", 1);
 
 
-        container.deployModule("com.deblox~mod-couchbase~0.0.1-SNAPSHOT", couchConfig, 1, new AsyncResultHandler<String>() {
+        container.deployModule("com.deblox~mod-couchbase~0.0.2-SNAPSHOT", couchConfig, 1, new AsyncResultHandler<String>() {
             @Override
             public void handle(AsyncResult<String> stringAsyncResult) {
 
